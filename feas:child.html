@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FEAS · Jordan Hayes</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',-apple-system,sans-serif;overflow:hidden;width:100vw;height:100vh}
+.bg{position:fixed;inset:0;z-index:0;background-image:url('https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=1920&q=80');background-size:cover;background-position:center;filter:brightness(0.88) saturate(0.9)}
+.bg::after{content:'';position:absolute;inset:0;background:rgba(235,230,225,0.1)}
+.glass{background:rgba(255,255,255,0.26);backdrop-filter:blur(60px) saturate(200%) brightness(1.1);-webkit-backdrop-filter:blur(60px) saturate(200%) brightness(1.1);border-radius:20px;border:1px solid rgba(255,255,255,0.55);box-shadow:0 2px 0 rgba(255,255,255,0.6) inset,0 20px 60px rgba(0,0,0,0.1)}
+.screen{position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center}
+.screen.active{display:flex;animation:ap 0.38s cubic-bezier(0.34,1.1,0.64,1)}
+@keyframes ap{from{opacity:0;transform:scale(0.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(255,255,255,0.18);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-bottom:1px solid rgba(255,255,255,0.35)}
+.topbar-logo{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;letter-spacing:2px;color:rgba(0,0,0,0.8)}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#007aff,#5ac8fa);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.bottomnav{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:200;display:flex;align-items:center;gap:3px;padding:6px 10px;background:rgba(255,255,255,0.32);backdrop-filter:blur(50px);-webkit-backdrop-filter:blur(50px);border-radius:100px;border:1px solid rgba(255,255,255,0.6);box-shadow:0 2px 0 rgba(255,255,255,0.7) inset,0 8px 32px rgba(0,0,0,0.1)}
+.ni{padding:7px 16px;border-radius:100px;font-size:12px;font-weight:500;color:rgba(0,0,0,0.5);cursor:pointer;transition:all 0.2s;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.ni:hover{color:rgba(0,0,0,0.75);background:rgba(255,255,255,0.4)}
+.ni.on{background:rgba(255,255,255,0.65);color:rgba(0,0,0,0.88);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.lbl{font-size:10px;font-weight:600;color:rgba(0,0,0,0.5);letter-spacing:0.8px;text-transform:uppercase}
+.h1{font-size:22px;font-weight:700;color:rgba(0,0,0,0.88);letter-spacing:-0.4px}
+.h2{font-size:16px;font-weight:700;color:rgba(0,0,0,0.85);letter-spacing:-0.2px}
+.pill{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:600}
+.pr{background:rgba(255,59,48,0.15);color:#c0251d}.pg{background:rgba(52,199,89,0.18);color:#1e8c3a}.po{background:rgba(255,149,0,0.18);color:#b86800}.pb{background:rgba(0,122,255,0.15);color:#0055b3}.pp{background:rgba(120,80,200,0.15);color:#6030a8}
+.trk{background:rgba(0,0,0,0.1);border-radius:100px;overflow:hidden}
+.fill{height:100%;border-radius:100px;transition:width 1s ease}
+.fb{background:#007aff}.fg{background:#34c759}.fr{background:#ff3b30}.fo{background:#ff9500}.fp{background:#af52de}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.18s;border:none;font-family:inherit}
+.btn-b{background:#007aff;color:#fff}.btn-b:hover{background:#005ecb}
+.btn-g{background:rgba(255,255,255,0.5);color:rgba(0,0,0,0.72);border:1px solid rgba(255,255,255,0.65)}.btn-g:hover{background:rgba(255,255,255,0.7)}
+.btn-gr{background:#34c759;color:#fff}
+.btn-sm{padding:7px 16px;font-size:12px}
+.div{height:1px;background:rgba(0,0,0,0.08);margin:9px 0}
+.row-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:12px;transition:background 0.15s;cursor:pointer}
+.row-item:hover{background:rgba(255,255,255,0.3)}
+.tag{display:inline-flex;padding:3px 9px;border-radius:7px;font-size:10px;font-weight:600;margin:2px}
+.tag-b{background:rgba(0,122,255,0.13);color:#0055b3}.tag-g{background:rgba(52,199,89,0.13);color:#1e8c3a}.tag-p{background:rgba(120,80,200,0.13);color:#6030a8}.tag-o{background:rgba(255,149,0,0.13);color:#b86800}
+/* Ring */
+.ring-w{position:relative;margin:0 auto}
+.ring-w svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(0,0,0,0.1);stroke-width:8}
+.ring-fg{fill:none;stroke-width:8;stroke-linecap:round;stroke-dasharray:283}
+.ring-fg.fb{stroke:#007aff}.ring-fg.fg{stroke:#34c759}.ring-fg.fr{stroke:#ff3b30}.ring-fg.fo{stroke:#ff9500}.ring-fg.fp{stroke:#af52de}
+.ring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dim-r{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.dim-n{font-size:11px;color:rgba(0,0,0,0.52);flex-shrink:0}
+.opt{padding:16px;border-radius:16px;cursor:pointer;border:2px solid rgba(255,255,255,0.4);transition:all 0.22s;background:rgba(255,255,255,0.2);margin-bottom:8px}
+.opt:hover{background:rgba(255,255,255,0.38)}
+.opt.sel-a{border-color:#007aff!important;background:rgba(0,122,255,0.08)!important}
+.opt.sel-b{border-color:#34c759!important;background:rgba(52,199,89,0.08)!important}
+.chart{display:flex;align-items:flex-end;gap:5px;height:50px}
+.bar{border-radius:4px 4px 0 0;flex:1;min-width:8px}
+.note{font-size:10px;color:rgba(0,0,0,0.5);line-height:1.65}
+
+/* ── Score Drawer (slides in from left) ── */
+#scoreDrawer{
+  position:fixed;top:58px;left:-300px;bottom:76px;width:260px;z-index:150;
+  transition:left 0.35s cubic-bezier(0.34,1.05,0.64,1);
+  display:flex;flex-direction:column;
+}
+#scoreDrawer.open{left:16px}
+#drawerOverlay{position:fixed;inset:0;z-index:140;display:none;background:transparent}
+#drawerOverlay.show{display:block}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="rgba(0,0,0,0.75)" stroke-width="1.8"/><path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4" stroke="#007aff" stroke-width="1.8" stroke-linecap="round"/></svg>
+    FEAS
+  </div>
+  <div style="font-size:11px;color:rgba(0,0,0,0.45);letter-spacing:1px;font-weight:600">CHILD VIEW</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="font-size:12px;color:rgba(0,0,0,0.58);font-weight:500">Jordan Hayes, 12</div>
+    <div class="avatar">J</div>
+  </div>
+</div>
+
+<!-- SCORE DRAWER (hidden by default) -->
+<div id="drawerOverlay" onclick="closeDrawer()"></div>
+<div id="scoreDrawer" class="glass" style="padding:18px;overflow-y:auto">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div class="lbl">FEAS Score</div>
+    <button class="btn btn-g btn-sm" style="padding:4px 10px;font-size:11px" onclick="closeDrawer()">✕</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+    <div class="ring-w" style="width:80px;height:80px;flex-shrink:0">
+      <svg viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="34"/>
+        <circle class="ring-fg fb" cx="40" cy="40" r="34" style="stroke-dasharray:214;stroke-dashoffset:49"/>
+      </svg>
+      <div class="ring-c">
+        <div style="font-size:24px;font-weight:800;color:rgba(0,0,0,0.88);line-height:1">77</div>
+        <div style="font-size:9px;color:rgba(0,0,0,0.45)">/100</div>
+      </div>
+    </div>
+    <div>
+      <div class="pill pg" style="margin-bottom:5px">↑ +2.3 this week</div>
+      <div class="pill pb">Top 18%</div>
+    </div>
+  </div>
+  <div class="div"></div>
+  <div class="lbl" style="margin-bottom:8px">Four Dimensions</div>
+  <div class="dim-r"><div class="dim-n" style="width:95px">Physiological</div><div style="flex:1"><div class="trk" style="height:4px"><div class="fill fb" style="width:82%"></div></div></div><div style="font-size:11px;font-weight:700;color:#007aff;width:24px">82</div></div>
+  <div class="dim-r"><div class="dim-n" style="width:95px">Behavioral</div><div style="flex:1"><div class="trk" style="height:4px"><div class="fill fb" style="width:84%"></div></div></div><div style="font-size:11px;font-weight:700;color:#007aff;width:24px">84</div></div>
+  <div class="dim-r"><div class="dim-n" style="width:95px">Emotional Reg.</div><div style="flex:1"><div class="trk" style="height:4px"><div class="fill fg" style="width:88%"></div></div></div><div style="font-size:11px;font-weight:700;color:#34c759;width:24px">88</div></div>
+  <div class="dim-r"><div class="dim-n" style="width:95px">Path Alignment</div><div style="flex:1"><div class="trk" style="height:4px"><div class="fill fo" style="width:61%"></div></div></div><div style="font-size:11px;font-weight:700;color:#ff9500;width:24px">61</div></div>
+  <div class="div"></div>
+  <div class="lbl" style="margin-bottom:6px">30-Day Trend</div>
+  <div class="chart" style="height:40px">
+    <div class="bar" style="height:55%;background:rgba(0,122,255,0.35)"></div><div class="bar" style="height:60%;background:rgba(0,122,255,0.35)"></div><div class="bar" style="height:48%;background:rgba(255,59,48,0.5)"></div><div class="bar" style="height:62%;background:rgba(0,122,255,0.35)"></div><div class="bar" style="height:68%;background:rgba(0,122,255,0.4)"></div><div class="bar" style="height:70%;background:rgba(0,122,255,0.45)"></div><div class="bar" style="height:65%;background:rgba(255,149,0,0.5)"></div><div class="bar" style="height:72%;background:rgba(0,122,255,0.4)"></div><div class="bar" style="height:75%;background:rgba(0,122,255,0.45)"></div><div class="bar" style="height:77%;background:rgba(0,122,255,0.65)"></div>
+  </div>
+  <div class="div"></div>
+  <div class="lbl" style="margin-bottom:6px">My Skills</div>
+  <span class="tag tag-b">Analytical</span><span class="tag tag-p">Coding</span><span class="tag tag-g">Focus</span><span class="tag tag-o">Creative</span><span class="tag tag-g">Science</span>
+  <div style="margin-top:12px">
+    <button class="btn btn-b btn-sm" style="width:100%" onclick="closeDrawer();go(3)">🏆 View Achievements →</button>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottomnav">
+  <div class="ni on" onclick="goScreen(1)" id="n1">🏠 Dashboard</div>
+  <div class="ni" onclick="toggleDrawer()" id="nScore">📊 My Score</div>
+  <div class="ni" onclick="goScreen(2)" id="n2">📅 Today's Log</div>
+  <div class="ni" onclick="goScreen(3)" id="n3">🏆 Achievements</div>
+  <div class="ni" onclick="goScreen(4)" id="n4">🎯 My Path</div>
+  <div class="ni" onclick="goScreen(5)" id="n5">🔮 Age 18</div>
+</div>
+
+<!-- ══ S1: DASHBOARD ══ -->
+<div class="screen active" id="s1">
+  <div style="width:520px;margin-top:10px">
+
+    <!-- Today's Activities -->
+    <div class="glass" style="padding:18px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="h2">Today's Activities</div>
+        <button class="btn btn-sm btn-g" onclick="goScreen(2)" style="font-size:11px">See All →</button>
+      </div>
+      <div class="row-item">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(0,122,255,0.12);display:flex;align-items:center;justify-content:center">📐</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.82)">Mathematics Practice</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">75 min</div></div>
+        <div class="pill pg">+4.2</div>
+      </div>
+      <div class="row-item" style="background:rgba(255,59,48,0.06);border-radius:12px">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(255,59,48,0.12);display:flex;align-items:center;justify-content:center">😴</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.82)">Unscheduled Rest</div><div style="font-size:10px;color:#c0251d;font-weight:500">⚠ Deviation detected</div></div>
+        <div class="pill pr">−2.8</div>
+      </div>
+      <div class="row-item">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(255,149,0,0.12);display:flex;align-items:center;justify-content:center">🎨</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.82)">Art Class</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">60 min · Low alignment</div></div>
+        <div class="pill po">+1.1</div>
+      </div>
+      <div class="row-item">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(52,199,89,0.12);display:flex;align-items:center;justify-content:center">📖</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.82)">Science Reading</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">60 min · Path-aligned</div></div>
+        <div class="pill pg">+3.6</div>
+      </div>
+      <div class="row-item">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(120,80,200,0.12);display:flex;align-items:center;justify-content:center">🧠</div>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.82)">Coding Practice</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">45 min · Path-aligned</div></div>
+        <div class="pill pg">+3.1</div>
+      </div>
+      <div class="div"></div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;padding:0 4px">
+        <span style="color:rgba(0,0,0,0.48)">Net score today</span>
+        <strong style="color:#007aff">+9.2 pts</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S2: TODAY'S LOG ══ -->
+<div class="screen" id="s2">
+  <div style="width:680px;display:flex;flex-direction:column;gap:11px;margin-top:10px">
+    <div class="glass" style="padding:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div>
+          <div class="lbl">Today's Activity Log</div>
+          <div class="h1" style="margin-top:3px">Jordan Hayes, 12</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:rgba(0,0,0,0.45);font-weight:600">Tracking Day</div>
+          <div style="font-size:22px;font-weight:800;color:rgba(0,0,0,0.7)">4,381</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="padding:12px;border-radius:14px;background:rgba(0,122,255,0.08);border:1px solid rgba(0,122,255,0.18);text-align:center"><div style="font-size:22px;font-weight:800;color:#007aff">+6.1</div><div style="font-size:10px;color:rgba(0,0,0,0.52);font-weight:500">Today's Net Score</div></div>
+        <div style="padding:12px;border-radius:14px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.18);text-align:center"><div style="font-size:22px;font-weight:800;color:#ff3b30">1</div><div style="font-size:10px;color:rgba(0,0,0,0.52);font-weight:500">Deviation Alert</div></div>
+      </div>
+      <div class="div" style="margin:0 0 10px"></div>
+      <div class="row-item"><div style="width:38px;height:38px;border-radius:11px;background:rgba(0,122,255,0.12);display:flex;align-items:center;justify-content:center;font-size:18px">📐</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82)">Mathematics Practice</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">08:30 – 09:45 · 75 min · Focus score: 91</div></div><div class="pill pg">+4.2</div></div>
+      <div class="row-item"><div style="width:38px;height:38px;border-radius:11px;background:rgba(255,149,0,0.12);display:flex;align-items:center;justify-content:center;font-size:18px">🎨</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82)">Art Class</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">10:00 – 11:00 · 60 min · Low alignment activity</div></div><div class="pill po">+1.1</div></div>
+      <div class="row-item" style="background:rgba(255,59,48,0.06);border-radius:12px"><div style="width:38px;height:38px;border-radius:11px;background:rgba(255,59,48,0.12);display:flex;align-items:center;justify-content:center;font-size:18px">😴</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82)">Unscheduled Rest</div><div style="font-size:10px;color:#c0251d;font-weight:500">13:00 – 14:20 · 80 min · Exceeded limit by 50 min · ⚠ Deviation</div></div><div class="pill pr">−2.8</div></div>
+      <div class="row-item"><div style="width:38px;height:38px;border-radius:11px;background:rgba(52,199,89,0.12);display:flex;align-items:center;justify-content:center;font-size:18px">📖</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82)">Science Reading</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">15:00 – 16:00 · 60 min · Path-aligned</div></div><div class="pill pg">+3.6</div></div>
+      <div class="row-item"><div style="width:38px;height:38px;border-radius:11px;background:rgba(120,80,200,0.12);display:flex;align-items:center;justify-content:center;font-size:18px">🧠</div><div style="flex:1"><div style="font-size:13px;font-weight:600;color:rgba(0,0,0,0.82)">Coding Practice</div><div style="font-size:10px;color:rgba(0,0,0,0.48)">16:30 – 17:15 · 45 min · Path-aligned</div></div><div class="pill pg">+3.1</div></div>
+      <div class="div"></div>
+      <div style="padding:10px 13px;border-radius:12px;background:rgba(0,0,0,0.05)">
+        <div class="note">Guardian has been notified of today's activity summary. Unscheduled rest has been flagged as a deviation and is under review.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S3: ACHIEVEMENTS ══ -->
+<div class="screen" id="s3">
+  <div style="width:720px;display:flex;gap:12px;margin-top:10px;align-items:start">
+    <div class="glass" style="flex:1;padding:20px">
+      <div class="lbl" style="margin-bottom:4px">Achievements & Experiences</div>
+      <div class="h1" style="margin-bottom:16px">Your Record</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="padding:14px;border-radius:14px;background:rgba(0,122,255,0.06);border:1px solid rgba(0,122,255,0.18);display:flex;align-items:center;gap:14px"><div style="font-size:28px">🥇</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:rgba(0,0,0,0.88)">Regional Math Olympiad — 1st Place</div><div style="font-size:11px;color:rgba(0,0,0,0.52);margin-top:2px">Competition · Age 11 · Verified by FEAS</div></div><div class="pill pg">+12.4 pts</div></div>
+        <div style="padding:14px;border-radius:14px;background:rgba(120,80,200,0.06);border:1px solid rgba(120,80,200,0.18);display:flex;align-items:center;gap:14px"><div style="font-size:28px">💼</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:rgba(0,0,0,0.88)">Junior Tech Camp Internship</div><div style="font-size:11px;color:rgba(0,0,0,0.52);margin-top:2px">Internship · Summer · TechCorp Youth Program</div></div><div class="pill pp">+9.8 pts</div></div>
+        <div style="padding:14px;border-radius:14px;background:rgba(0,122,255,0.04);border:1px solid rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px"><div style="font-size:28px">🔬</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:rgba(0,0,0,0.88)">Science Fair Project Lead</div><div style="font-size:11px;color:rgba(0,0,0,0.52);margin-top:2px">Project · Age 11 · Environmental Research</div></div><div class="pill pb">+7.1 pts</div></div>
+        <div style="padding:14px;border-radius:14px;background:rgba(52,199,89,0.04);border:1px solid rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px"><div style="font-size:28px">🤝</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:rgba(0,0,0,0.88)">School Robotics Club — Member</div><div style="font-size:11px;color:rgba(0,0,0,0.52);margin-top:2px">Extracurricular · Ongoing · Path-aligned</div></div><div class="pill pg">+5.3 pts</div></div>
+        <div style="padding:14px;border-radius:14px;background:rgba(255,149,0,0.04);border:1px solid rgba(0,0,0,0.08);display:flex;align-items:center;gap:14px"><div style="font-size:28px">🎨</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:rgba(0,0,0,0.88)">City Art Exhibition — Participant</div><div style="font-size:11px;color:rgba(0,0,0,0.52);margin-top:2px">Exhibition · Age 12</div></div><div class="pill po">+1.2 pts</div></div>
+      </div>
+    </div>
+    <div style="width:220px;display:flex;flex-direction:column;gap:11px">
+      <div class="glass" style="padding:16px">
+        <div class="lbl" style="margin-bottom:8px">Skill Tags</div>
+        <span class="tag tag-b">Analytical Thinking</span><span class="tag tag-b">Problem Solving</span><span class="tag tag-p">Coding Basics</span><span class="tag tag-g">Focus Endurance</span><span class="tag tag-g">Science Literacy</span><span class="tag tag-o">Creative Expression</span><span class="tag tag-g">Team Collaboration</span>
+      </div>
+      <div class="glass" style="padding:16px;text-align:center">
+        <div class="lbl" style="margin-bottom:8px">Total Impact</div>
+        <div style="font-size:36px;font-weight:800;color:#007aff">+35.8</div>
+        <div style="font-size:11px;color:rgba(0,0,0,0.52);margin-top:3px">lifetime pts from achievements</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S4: MY PATH ══ -->
+<div class="screen" id="s4">
+  <div style="width:720px;display:flex;gap:12px;margin-top:10px;align-items:start">
+    <div class="glass" style="flex:1;padding:20px">
+      <div class="lbl" style="margin-bottom:4px">Career Path</div>
+      <div class="h1" style="margin-bottom:6px">Choose Your Direction</div>
+      <div style="font-size:12px;color:rgba(0,0,0,0.52);margin-bottom:16px;line-height:1.5">Select a path. FEAS will compare your choice against system analysis based on 4,381 days of data.</div>
+      <div class="opt sel-a" id="optA" onclick="selOpt('A')">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:32px;height:32px;border-radius:10px;background:rgba(0,122,255,0.12);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#007aff">A</div>
+          <div><div style="font-size:11px;font-weight:700;color:rgba(0,0,0,0.58)">Your Choice</div><div style="font-size:16px;font-weight:700;color:rgba(0,0,0,0.88)">Artist 🎨</div></div>
+          <div style="margin-left:auto"><div class="pill pr">31% match</div></div>
+        </div>
+        <div class="trk" style="height:6px;margin-bottom:5px"><div class="fill fr" style="width:31%"></div></div>
+        <div style="font-size:10px;color:rgba(0,0,0,0.52);line-height:1.55">Your interest in creative work is genuine. However, based on long-term behavioral data, this path shows low alignment with your physiological and behavioral patterns.</div>
+        <div style="margin-top:8px;font-size:10px;color:#c0251d;font-weight:600">⚠ Guardian notified · Low employer visibility</div>
+      </div>
+      <div class="opt" id="optB" onclick="selOpt('B')">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:32px;height:32px;border-radius:10px;background:rgba(52,199,89,0.12);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#34c759">B</div>
+          <div><div style="font-size:11px;font-weight:700;color:rgba(0,0,0,0.58)">FEAS Recommends</div><div style="font-size:16px;font-weight:700;color:#1e8c3a">Engineer ⚙️</div></div>
+          <div style="margin-left:auto"><div class="pill pg">94% match</div></div>
+        </div>
+        <div class="trk" style="height:6px;margin-bottom:5px"><div class="fill fg" style="width:94%"></div></div>
+        <div style="font-size:10px;color:rgba(0,0,0,0.52);line-height:1.55">Your focus patterns, analytical performance, and behavioral consistency show exceptional alignment with engineering-type roles. System confidence: High.</div>
+        <div style="margin-top:8px;font-size:10px;color:#1e8c3a;font-weight:600">✦ Best match · High employer visibility · 847 matched employers</div>
+      </div>
+    </div>
+    <div style="width:220px;display:flex;flex-direction:column;gap:11px">
+      <div class="glass" style="padding:16px">
+        <div class="lbl" style="margin-bottom:8px">Other Options</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.3);cursor:pointer"><span style="font-size:12px;color:rgba(0,0,0,0.72)">Doctor 🩺</span><span style="font-size:10px;color:#b86800;font-weight:600">72%</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.3);cursor:pointer"><span style="font-size:12px;color:rgba(0,0,0,0.72)">Architect 🏛</span><span style="font-size:10px;color:#b86800;font-weight:600">65%</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.3);cursor:pointer"><span style="font-size:12px;color:rgba(0,0,0,0.72)">Writer ✍️</span><span style="font-size:10px;color:rgba(0,0,0,0.35);font-weight:600">28%</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.3);cursor:pointer"><span style="font-size:12px;color:rgba(0,0,0,0.72)">Musician 🎵</span><span style="font-size:10px;color:rgba(0,0,0,0.35);font-weight:600">22%</span></div>
+        </div>
+      </div>
+      <div class="glass" style="padding:14px">
+        <div class="note">Career path selection is advisory. At age 18, the system will make the final allocation based on cumulative lifetime data — regardless of current selection.</div>
+      </div>
+      <button class="btn btn-b" style="width:100%" onclick="goScreen(5)">See Age 18 Result →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S5: AGE 18 ══ -->
+<div class="screen" id="s5">
+  <div style="width:520px;display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:10px;text-align:center">
+    <div style="font-size:10px;font-weight:700;color:rgba(0,0,0,0.5);letter-spacing:2px;text-transform:uppercase">Age 18 · Final Assessment</div>
+    <div class="glass" style="padding:32px;width:100%;display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div style="font-size:52px">📊</div>
+      <div style="font-size:32px;font-weight:800;color:rgba(0,0,0,0.88);letter-spacing:-0.5px">Data Scientist</div>
+      <div style="font-size:11px;color:rgba(0,0,0,0.42);letter-spacing:1px;text-transform:uppercase;font-weight:600">Matched by FEAS National Allocation</div>
+      <div style="display:flex;border-top:1px solid rgba(0,0,0,0.08);padding-top:16px;margin-top:6px;width:100%">
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;align-items:center"><div style="font-size:26px;font-weight:800;color:#007aff">83</div><div style="font-size:10px;color:rgba(0,0,0,0.45);font-weight:500">Final Score</div></div>
+        <div style="width:1px;background:rgba(0,0,0,0.08)"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;align-items:center"><div style="font-size:20px;font-weight:800;color:#34c759">Top 12%</div><div style="font-size:10px;color:rgba(0,0,0,0.45);font-weight:500">National Rank</div></div>
+        <div style="width:1px;background:rgba(0,0,0,0.08)"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:3px;align-items:center"><div style="font-size:24px;font-weight:800;color:rgba(0,0,0,0.75)">18</div><div style="font-size:10px;color:rgba(0,0,0,0.45);font-weight:500">Years of Data</div></div>
+      </div>
+    </div>
+    <div class="glass" style="padding:20px;width:100%">
+      <div style="font-size:13px;color:rgba(0,0,0,0.55);line-height:1.85">
+        Your assignment is based on <strong style="color:rgba(0,0,0,0.78)">6,570 days of continuous data</strong> — behavioral patterns, emotional stability, interest trajectories, and social performance scores.<br><br>
+        <span style="color:rgba(0,0,0,0.4)">No application required. No interview needed.<br>Your life has spoken for itself.</span>
+      </div>
+    </div>
+    <button class="btn btn-g" onclick="goScreen(1)">← Back to Dashboard</button>
+  </div>
+</div>
+
+<script>
+let cur=1, drawerOpen=false;
+
+function goScreen(n){
+  closeDrawer();
+  document.getElementById('s'+cur).classList.remove('active');
+  document.getElementById('n'+cur)?.classList.remove('on');
+  cur=n;
+  document.getElementById('s'+cur).classList.add('active');
+  document.getElementById('n'+cur)?.classList.add('on');
+}
+
+function toggleDrawer(){
+  drawerOpen ? closeDrawer() : openDrawer();
+}
+function openDrawer(){
+  drawerOpen=true;
+  document.getElementById('scoreDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+  document.getElementById('nScore').classList.add('on');
+}
+function closeDrawer(){
+  drawerOpen=false;
+  document.getElementById('scoreDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+  document.getElementById('nScore').classList.remove('on');
+}
+
+function selOpt(o){
+  ['optA','optB'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('sel-a','sel-b')});
+  if(o==='A')document.getElementById('optA').classList.add('sel-a');
+  else if(o==='B')document.getElementById('optB').classList.add('sel-b');
+}
+</script>
+</body>
+</html>
